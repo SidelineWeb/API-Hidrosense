@@ -22,7 +22,7 @@ const HydrometerSchema = new mongoose.Schema({
   valveState: {
     type: Boolean,
     required: true,
-    default: true, // verdadeiro para aberta, falso para fechada
+    default: false, // falso para aberta, Verdadeiro para fechada
   },
   // Você pode adicionar mais campos conforme necessário
 });
