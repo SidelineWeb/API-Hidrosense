@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "babel src --out-dir dist",
-    "start": "node dist/app.js"
+    "start": "node dist/index.js"
   },
   "author": "Sideline",
   "license": "ISC",
