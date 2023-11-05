@@ -15,5 +15,4 @@ router.get("/", measurementController.getYearMeasurement);
 router.get("/", measurementController.getDayMeasurement);
 router.get("/", measurementController.getWeekMeasurement);
 
-
 export default router;

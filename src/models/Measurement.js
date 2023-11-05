@@ -4,6 +4,10 @@ const MeasurementSchema = new mongoose.Schema({
     ref: 'Hydrometer',
     required: true,
   },
+  pulse: {
+    type: Number,
+    required: true,
+  },
   valuem: {
     type: Number,
     required: true,
