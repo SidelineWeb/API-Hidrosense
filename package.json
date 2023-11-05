@@ -4,8 +4,11 @@
   "description": "API for Hidrosense dash",
   "main": "index.js",
   "type": "module",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
-    "start": "node index",
+    "start": "node index.js",
     "dev": "nodemon index"
   },
   "author": "Sideline",
