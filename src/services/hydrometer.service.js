@@ -1,17 +1,17 @@
 import Hydrometer from "../models/Hydrometer.js";
 
-const createService = (body) => User.create(body);
+const createService = (body) => Hydrometer.create(body);
 
-const findAllService = () => User.find();
+const findAllService = () => Hydrometer.find();
 
-const findByIdService = (id) => User.findById(id);
+const findByIdService = (id) => Hydrometer.findById(id);
 
-const findByUserService = (user) => User.findByUser(user);
+const findByUserService = (user) => Hydrometer.findByUser(user);
 
 const findValveStateByIdService = (id) => Hydrometer.findById(id).select('valveState');
 
-const updateService = (id, location, model, serialNumber, user, valveState) =>
-  User.findOneAndUpdate({ _id: id }, { id, location, model, serialNumber, user, valveState});
+const updateService = (id, updateData) =>
+  Hydrometer.findByIdAndUpdate(id, updateData, { new: true });
 
   export {
     createService,

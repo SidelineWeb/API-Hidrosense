@@ -47,23 +47,16 @@ const deleteH = async (req, res) => {};
 
 const update = async (req, res) => {
     const { id } = req.params; // Obter o ID da URL
-    const { location, model, serialNumber, user, valveState } = req.body;
+    const updateData = req.body;
 
     try {
         // Verificar se pelo menos um campo foi fornecido para atualização
-        if (!location && !model && !serialNumber && !user && !valveState) {
-            return res.status(400).send({ message: "Submit at least one field for update" });
+        if (Object.keys(updateData).length === 0) {
+          return res.status(400).send({ message: "Envie pelo menos um campo para atualização" });
         }
 
         // Atualizar o hidrômetro
-        const updatedHydrometer = await updateService(
-            id,
-            location,
-            model,
-            serialNumber,
-            user,
-            valveState
-        );
+        const updatedHydrometer = await updateService(id, updateData);
 
         res.send({ message: "Hydrometer successfully updated", updatedHydrometer });
     } catch (err) {
