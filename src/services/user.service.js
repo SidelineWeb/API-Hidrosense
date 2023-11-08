@@ -6,6 +6,8 @@ const findAllService = () => User.find();
 
 const findByIdService = (id) => User.findById(id);
 
+const findUserRoleByIdService = (id) => User.findById(id).select('role');
+
 const updateService = (id, name, ident, email, cpf) =>
   User.findOneAndUpdate({ _id: id }, { id, name, ident, email, cpf });
   
@@ -15,4 +17,5 @@ export default {
   findAllService,
   findByIdService,
   updateService,
+  findUserRoleByIdService,
 };

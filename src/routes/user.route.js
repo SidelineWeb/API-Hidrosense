@@ -5,8 +5,10 @@ import { validId, validUser } from "../middlewares/global.middlewares.js";
 const router = Router();
 
 router.post("/", userController.create);
+router.patch("/:id", validId, validUser, userController.update);
+
 router.get("/", userController.findAll);
 router.get("/:id", validId, validUser, userController.findById);
-router.patch("/:id", validId, validUser, userController.update);
+router.get("/:id/role", validId, validUser, userController.findUserRoleById);
 
 export default router;

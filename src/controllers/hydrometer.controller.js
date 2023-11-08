@@ -96,4 +96,4 @@ const valveStatus = async (req, res) => {
     }
 };
 
-export default { create, findAll, findById, findByUser, deleteH, update, valveStatus, deleteHydrometer };
+export default { create, findAll, findById, findByUser, update, valveStatus, deleteHydrometer };

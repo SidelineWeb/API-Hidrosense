@@ -29,6 +29,24 @@ const create = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  try {
+    const { name, ident, email, cpf, password } = req.body;
+
+    if (!name && !ident && !email && !cpf && !password) {
+      res.status(400).send({ message: "Submit at least one field for update" });
+    }
+
+    const { id, user } = req;
+
+    await userService.updateService(id, name, ident, email, cpf);
+
+    res.send({ message: "User Successfully updated!" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
 const findAll = async (req, res) => {
   try {
     const users = await userService.findAllService();
@@ -53,22 +71,15 @@ const findById = async (req, res) => {
   }
 };
 
-const update = async (req, res) => {
+const findUserRoleById = async (req, res) => {
   try {
-    const { name, ident, email, cpf, password } = req.body;
+    const { id } = req.params;
+    const user = await userService.findUserRoleByIdService(id);
 
-    if (!name && !ident && !email && !cpf && !password) {
-      res.status(400).send({ message: "Submit at least one field for update" });
-    }
-
-    const { id, user } = req;
-
-    await userService.updateService(id, name, ident, email, cpf);
-
-    res.send({ message: "User Successfully updated!" });
+    res.status(200).send({ role: user.role });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }
 };
 
-export default { create, findAll, findById, update };
+export default { create, findAll, findById, update, findUserRoleById };
