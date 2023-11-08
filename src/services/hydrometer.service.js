@@ -6,7 +6,7 @@ const findAllService = () => Hydrometer.find();
 
 const findByIdService = (id) => Hydrometer.findById(id);
 
-const findByUserService = (user) => Hydrometer.findByUser(user);
+const findByUserService = (userId) => Hydrometer.find({ user: userId });
 
 const findValveStateByIdService = (hydrometer) => Hydrometer.findById(hydrometer).select('valveState');
 

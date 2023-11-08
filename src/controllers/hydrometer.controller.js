@@ -1,4 +1,4 @@
-import { createService, findAllService, findValveStateByIdService, updateService } from "../services/hydrometer.service.js";
+import { createService, findAllService, findValveStateByIdService, updateService, findByUserService } from "../services/hydrometer.service.js";
 
 const create = async (req, res) => {
     try {
@@ -41,7 +41,20 @@ const findAll = async (req, res) => {
 
 const findById = async (req, res) => {};
 
-const findByUser = async (req, res) => {};
+const findByUser = async (req, res) => {
+  try {
+      const userId = req.params.userId; // ou req.user.id se você estiver usando autenticação
+      const hydrometers = await findByUserService(userId);
+
+      if (!hydrometers.length) {
+          return res.status(404).send({ message: "Nenhum hidrômetro encontrado para este usuário." });
+      }
+
+      res.send(hydrometers);
+  } catch (err) {
+      res.status(500).send({ message: err.message });
+  }
+};
 
 const deleteH = async (req, res) => {};
 
