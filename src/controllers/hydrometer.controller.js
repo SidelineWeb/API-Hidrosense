@@ -1,4 +1,4 @@
-import { createService, findAllService, findValveStateByIdService, updateService, findByUserService } from "../services/hydrometer.service.js";
+import { createService, findAllService, findValveStateByIdService, updateService, findByUserService, deleteService } from "../services/hydrometer.service.js";
 
 const create = async (req, res) => {
     try {
@@ -56,7 +56,15 @@ const findByUser = async (req, res) => {
   }
 };
 
-const deleteH = async (req, res) => {};
+const deleteHydrometer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await hydrometerService.deleteService(id);
+    res.status(200).json({ message: 'Hydrometer deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 const update = async (req, res) => {
     const { id } = req.params; // Obter o ID da URL
@@ -88,4 +96,4 @@ const valveStatus = async (req, res) => {
     }
 };
 
-export default { create, findAll, findById, findByUser, deleteH, update, valveStatus };
+export default { create, findAll, findById, findByUser, deleteH, update, valveStatus, deleteHydrometer };

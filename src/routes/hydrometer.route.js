@@ -6,9 +6,10 @@ const router = Router();
 
 router.post("/", hydrometerController.create);
 router.patch("/:id", validHydrometerId, hydrometerController.update);
+router.delete("/:id", validHydrometerId, hydrometerController.deleteHydrometer);
 
 router.get("/", hydrometerController.findAll);
-router.get("/:id",  hydrometerController.findById);
+router.get("/:id", hydrometerController.findById);
 router.get("/user/:userId/hydrometers", hydrometerController.findByUser);
 router.get("/:id/valve-status", validHydrometerId, hydrometerController.valveStatus);
 

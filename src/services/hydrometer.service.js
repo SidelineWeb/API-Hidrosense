@@ -2,6 +2,8 @@ import Hydrometer from "../models/Hydrometer.js";
 
 const createService = (body) => Hydrometer.create(body);
 
+const deleteService = (id) => Hydrometer.findByIdAndDelete(id);
+
 const findAllService = () => Hydrometer.find();
 
 const findByIdService = (id) => Hydrometer.findById(id);
@@ -20,4 +22,5 @@ const updateService = (id, updateData) =>
     updateService,
     findValveStateByIdService,
     findByUserService,
+    deleteService,
   };
