@@ -19,16 +19,19 @@ const MeasurementSchema = new mongoose.Schema({
   time: {
     hour: Number,
     minute: Number,
-    second: Number
+    second: Number,
+    required: true,
   },
   date: {
     day: Number,
     month: Number,
-    year: Number
+    year: Number,
+    required: true,
   },
   timestamp: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    required: true,
   }
 });
 
