@@ -6,6 +6,7 @@ const router = Router();
 
 router.post("/", hydrometerController.create);
 router.patch("/:id", validHydrometerId, hydrometerController.update);
+router.patch("/:id/valve-status", validHydrometerId, hydrometerController.toggleValveStatus);
 router.delete("/:id", validHydrometerId, hydrometerController.deleteHydrometer);
 
 router.get("/:id", validHydrometerId, hydrometerController.findById);

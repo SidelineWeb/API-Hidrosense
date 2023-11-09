@@ -65,6 +65,17 @@ const findByUser = async (req, res) => {
   }
 };
 
+const valveStatus = async (req, res) => {
+  try {
+      const { id } = req.params;
+      const hydrometer = await findValveStateByIdService(id);
+
+      res.send({ valveState: hydrometer.valveState });
+  } catch (err) {
+      res.status(500).send({ message: err.message });
+  }
+};
+
 const deleteHydrometer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -94,15 +105,19 @@ const update = async (req, res) => {
     }
 };
 
-const valveStatus = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const hydrometer = await findValveStateByIdService(id);
+const toggleValveStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Encontrar o hidrômetro e alternar o estado da válvula
+    const hydrometer = await findByIdService(id);
+    
+    const updatedValveState = !hydrometer.valveState;
+    const updatedHydrometer = await updateService(id, { valveState: updatedValveState });
 
-        res.send({ valveState: hydrometer.valveState });
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
+    res.status(200).send({ message: "Estado da válvula atualizado com sucesso", valveState: updatedHydrometer.valveState });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };
 
-export default { create, findAll, findById, findByUser, update, valveStatus, deleteHydrometer };
+export default { create, findAll, findById, findByUser, update, valveStatus, deleteHydrometer,toggleValveStatus };
