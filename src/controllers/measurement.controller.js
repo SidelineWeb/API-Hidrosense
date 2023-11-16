@@ -297,7 +297,7 @@ const getCurrentYearLitersByUser = async (req, res) => { };
 
 const getCustomYearLitersByUser = async (req, res) => { };
 
-const geCurrenttDayLitersByUser = async (req, res) => { };
+const geCurrentDayLitersByUser = async (req, res) => { };
 
 const geCustomDayLitersByUser = async (req, res) => { };
 
@@ -330,6 +330,4 @@ export default {
 
     getCurentMonthTotalLiters, getCurentMonthTotalMcubic, getCurentMonthTotalBilling, getCurentMonthTotalPrev,
 
-    getMonthLitersMeasurementByUser, getYearLitersMeasurementByUser, getDayLitersMeasurementByUser, getWeekLitersMeasurementByUser, 
-    getMonthMcubicMeasurementByUser, getYearMcubicMeasurementByUser, getDayMcubicMeasurementByUser, getWeekMcubicMeasurementByUser, 
 };
