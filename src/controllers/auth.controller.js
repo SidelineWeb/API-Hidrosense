@@ -16,7 +16,7 @@ const login = async (req, res) => {
       return res.status(404).send({ message: "User or password not found" });
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.role);
 
     res.send({token});
   } catch (err) {

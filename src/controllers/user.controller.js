@@ -2,9 +2,9 @@ import userService from "../services/user.service.js";
 
 const create = async (req, res) => {
   try {
-    const { name, ident, email, cpf, password } = req.body;
+    const { name, email, cpf, password, role } = req.body;
 
-    if (!name || !ident || !email || !cpf || !password) {
+    if (!name || !email || !cpf || !password || !role) {
       res.status(400).send({ message: "Submit all fields for registration" });
     }
 
@@ -19,9 +19,43 @@ const create = async (req, res) => {
       user: {
         id: user._id,
         name,
-        ident,
         email,
-        cpf,
+        role,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+const registerUser = async (req, res) => {
+  try {
+
+    const { role } = req.user; // Assumindo que o papel do usuário é anexado ao objeto req em algum middleware anterior
+
+    const { name, email, cpf, password } = req.body;
+
+    if (role !== 'admin') {
+      return res.status(403).send({ message: "Access denied" })
+    }
+
+    if (!name || !email || !cpf || !password ) {
+      res.status(400).send({ message: "Submit all fields for registration" });
+    }
+
+    const user = await userService.createService(req.body);
+
+    if (!user) {
+      return res.status(400).send({ message: "Error creating User" });
+    }
+
+    res.status(201).send({
+      message: "user created successfully",
+      user: {
+        id: user._id,
+        name,
+        email,
+        role,
       },
     });
   } catch (err) {
@@ -82,4 +116,4 @@ const findUserRoleById = async (req, res) => {
   }
 };
 
-export default { create, findAll, findById, update, findUserRoleById };
+export default { create, findAll, findById, update, findUserRoleById, registerUser };
