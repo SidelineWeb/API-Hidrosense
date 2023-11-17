@@ -57,43 +57,6 @@ const findByHydrometer = async (req, res) => {
     }
 };
 
-// filtros - Medição Geral
-
-const getMonthMeasurement = async (req, res) => {
-    try {
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-        const totalLitersPerDay = await Measurement.aggregate([
-            {
-                $match: {
-                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
-                }
-            },
-            {
-                $group: {
-                    _id: { $dayOfMonth: "$timestamp" },
-                    totalLiters: { $sum: "$valueliters" }
-                }
-            },
-            {
-                $sort: { "_id": 1 } // Ordenando por dia do mês
-            }
-        ]);
-
-        res.send({ totalLitersPerDay });
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
- };
-
-const getYearMeasurement = async (req, res) => { };
-
-const getDayMeasurement = async (req, res) => { };
-
-const getWeekMeasurement = async (req, res) => { };
-
 // Info Charts 
 
 const getCurentMonthMeasurementLiters = async (req, res) => {
@@ -151,6 +114,104 @@ const getCurentMonthMeasurementMcubic = async (req, res) => {
 const getCurentMonthBilling = async (req, res) => { };
 
 const getCurentMonthPrev = async (req, res) => { };
+
+// filtros - Medição Geral
+
+const getCurrentMonthLiters = async (req, res) => {
+    try {
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        const totalLitersPerDay = await Measurement.aggregate([
+            {
+                $match: {
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dayOfMonth: "$timestamp" },
+                    totalLiters: { $sum: "$valueliters" }
+                }
+            },
+            {
+                $sort: { "_id": 1 } // Ordenando por dia do mês
+            }
+        ]);
+
+        res.send({ totalLitersPerDay });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+ };
+
+ const getCustomMonthLiters = async (req, res) => { 
+    try {
+        const { year, month } = req.query; // Obtendo ano e mês dos parâmetros da requisição
+
+        // Validação básica para ano e mês
+        if (!year || !month) {
+            return res.status(400).send({ message: "Year and month are required" });
+        }
+
+        const firstDayOfMonth = new Date(year, month - 1, 1); // Mês no JavaScript começa do 0
+        const lastDayOfMonth = new Date(year, month, 0);
+
+        // Encontrando todos os hidrômetros associados a esse usuário
+        const userHydrometers = await Hydrometer.find({ user: userId }).select('_id');
+
+        const totalLitersPerDay = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: { $in: userHydrometers.map(h => h._id) },
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dayOfMonth: "$timestamp" },
+                    totalLiters: { $sum: "$valueliters" }
+                }
+            },
+            {
+                $sort: { "_id": 1 } // Ordenando por dia do mês
+            }
+        ]);
+
+        res.send({ totalLitersPerDay });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const getCurrentYearLiters = async (req, res) => { };
+
+const getCustomYearLiters = async (req, res) => { };
+
+const geCurrentDayLiters = async (req, res) => { };
+
+const geCustomDayLiters = async (req, res) => { };
+
+const getCurrentWeekLiters = async (req, res) => { };
+
+const getCustomWeekLiters = async (req, res) => { };
+
+const getCurrentMonthMcubic = async (req, res) => { };
+
+const getCustomMonthMcubic = async (req, res) => { };
+
+const getCurrentYearMcubic = async (req, res) => { };
+
+const getCustomYearMcubic = async (req, res) => { };
+
+const getCurrentDayMcubic = async (req, res) => { };
+
+const getCustomDayMcubic = async (req, res) => { };
+
+const getCurrentWeekMcubic = async (req, res) => { };
+
+const getCustomWeekMcubic = async (req, res) => { };
 
 // Info Charts - User por Hydrometer
 
@@ -222,7 +283,7 @@ const getCurentMonthTotalPrev = async (req, res) => { };
 
 // filtros - Medição User por Hydrometer
 
-const getCurrentMonthLitersByUser = async (req, res) => { 
+const getCustomMonthLitersByUser = async (req, res) => { 
     try {
         const userId = req.user.id; // ID do usuário obtido do token JWT
         const { year, month } = req.query; // Obtendo ano e mês dos parâmetros da requisição
@@ -262,7 +323,7 @@ const getCurrentMonthLitersByUser = async (req, res) => {
     }
 };
 
-const getCustomMonthLitersByUser = async (req, res) => { 
+const getCurrentMonthLitersByUser = async (req, res) => { 
     try {
         const userId = req.user.id; // Obtendo o ID do usuário do token JWT
         const now = new Date();
@@ -293,13 +354,55 @@ const getCustomMonthLitersByUser = async (req, res) => {
     }
 };
 
-const getCurrentYearLitersByUser = async (req, res) => { };
+const getCurrentYearLitersByUser = async (req, res) => { 
+    
+ };
 
-const getCustomYearLitersByUser = async (req, res) => { };
+const getCustomYearLitersByUser = async (req, res) => { 
+    try {
+        const userId = req.user.id; // ID do usuário do token JWT
+        const { year } = req.query; // Recebendo o ano dos parâmetros da requisição
 
-const geCurrentDayLitersByUser = async (req, res) => { };
+        // Validação básica para o ano
+        if (!year) {
+            return res.status(400).send({ message: "Year is required" });
+        }
 
-const geCustomDayLitersByUser = async (req, res) => { };
+        const firstDayOfYear = new Date(year, 0, 1);
+        const lastDayOfYear = new Date(year, 11, 31);
+
+        // Encontrando todos os hidrômetros associados a esse usuário
+        const userHydrometers = await Hydrometer.find({ user: userId }).select('_id');
+
+        const totalLitersPerMonth = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: { $in: userHydrometers.map(h => h._id) },
+                    timestamp: { $gte: firstDayOfYear, $lte: lastDayOfYear }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: "$timestamp" },
+                    totalLiters: { $sum: "$valueliters" }
+                }
+            },
+            {
+                $sort: { "_id": 1 } // Ordenando por mês
+            }
+        ]);
+
+        res.send({ totalLitersPerMonth });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const geCurrentDayLitersByUser = async (req, res) => {  };
+
+const geCustomDayLitersByUser = async (req, res) => { 
+    
+};
 
 const getCurrentWeekLitersByUser = async (req, res) => { };
 

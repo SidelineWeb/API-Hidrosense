@@ -4,10 +4,19 @@ import { validId, validUser } from "../middlewares/global.middlewares.js";
 
 const router = Router();
 
-
+//Crud
 router.post("/", measurementController.create);
 router.get("/", measurementController.findAll);
 router.get("/:hydrometer", measurementController.findByHydrometer);
+
+//ADM/Master
+// Info charts
+router.get("/monthMeasurement", measurementController.getMonthMeasurement);
+
+// filtros - Medição User por Hydrometer - Custom
+router.get("/user-month-liters", measurementController.getCustomMonthLitersByUser);
+
+router.get("/user-year-liters", measurementController.getCustomYearLitersByUser);
 
 
 export default router;
