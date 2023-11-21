@@ -8,7 +8,7 @@ const router = Router();
 //Crud
 router.post("/", measurementController.create);
 router.get("/", measurementController.findAll);
-router.get("/:hydrometer", measurementController.findByHydrometer);
+router.get("/by-hydrometer/:hydrometer", measurementController.findByHydrometer);
 
 // Info charts - Total
 router.get("/total-month-liters", measurementController.getCurentMonthMeasurementLiters);

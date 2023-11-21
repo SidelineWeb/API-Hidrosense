@@ -2,38 +2,6 @@ import { createService, findAllService} from "../services/measurement.service.js
 import Measurement from "../models/Measurement.js";
 import moment from 'moment-timezone';
 
-import mongoose from "mongoose";
-
-import dotenv from "dotenv";
-
-dotenv.config();
-
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("Conexão com MongoDB estabelecida."))
-  .catch(err => console.error("Erro ao conectar ao MongoDB:", err));
-
-// Process
-
-const calculateBilling = (totalMcubic) => {
-    const tarifas = [
-        { min: 0, max: 10, fixo: 35.85, variavel: 0 },
-        { min: 11, max: 20, fixo: 0, variavel: 5.62 },
-        { min: 21, max: 50, fixo: 0, variavel: 14.00 },
-        { min: 51, max: Infinity, fixo: 0, variavel: 15.43 }
-    ];
-
-    let custo = totalMcubic > 0 ? tarifas[0].fixo : 0; // Inicia com o custo fixo mínimo
-
-    tarifas.forEach((tarifa, index) => {
-        if (totalMcubic > tarifa.min) {
-            const consumoNessaFaixa = index === 0 ? tarifa.max : Math.min(totalMcubic - tarifa.min + 1, tarifa.max - tarifa.min);
-            custo += consumoNessaFaixa * tarifa.variavel;
-        }
-    });
-
-    return custo;
-};
-
 //CRUD
 
 const create = async (req, res) => {
@@ -86,7 +54,8 @@ const findByHydrometer = async (req, res) => {
         if (!findHydrometers.legth) {
             return res.status(404).send({ message: "Nenhum hidrômetro encontrado"});
         }
-        res.send(findHydrometers);
+
+        res.send({findHydrometers});
     } catch (err){
         res.status(500).send({ message:err.message });
     }
