@@ -2,6 +2,26 @@ import { createService, findAllService} from "../services/measurement.service.js
 import Measurement from "../models/Measurement.js";
 import moment from 'moment-timezone';
 
+const calculateBilling = (totalMcubic) => {
+    const tarifas = [
+        { min: 0, max: 10, fixo: 35.85, variavel: 0 },
+        { min: 11, max: 20, fixo: 0, variavel: 5.62 },
+        { min: 21, max: 50, fixo: 0, variavel: 14.00 },
+        { min: 51, max: Infinity, fixo: 0, variavel: 15.43 }
+    ];
+
+    let custo = totalMcubic > 0 ? tarifas[0].fixo : 0; // Inicia com o custo fixo mínimo
+
+    tarifas.forEach((tarifa, index) => {
+        if (totalMcubic > tarifa.min) {
+            const consumoNessaFaixa = index === 0 ? tarifa.max : Math.min(totalMcubic - tarifa.min + 1, tarifa.max - tarifa.min);
+            custo += consumoNessaFaixa * tarifa.variavel;
+        }
+    });
+
+    return custo;
+};
+
 //CRUD
 
 const create = async (req, res) => {
@@ -69,28 +89,22 @@ const getCurentMonthMeasurementLiters = async (req, res) => {
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-        console.log('First day of month:', firstDayOfMonth);
-        console.log('Last day of month:', lastDayOfMonth);
+        const measurements = await Measurement.find({
+            timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
 
-        const totalLiters = await Measurement.aggregate([
-            {
-                $match: {
-                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totaliters: { $sum: "$valueliters" }
-                }
-            }
-        ]);
+        if (measurements.length < 2) {
+            return res.status(400).send({ message: "Not enough data to calculate consumption" });
+        }
 
-        console.log('Total Liters:', totalLiters);
+        // Pegando a primeira e a última medição do mês
+        const firstMeasurement = measurements[0].valueliters;
+        const lastMeasurement = measurements[measurements.length - 1].valueliters;
+
+        const totalLiters = lastMeasurement - firstMeasurement;
 
         res.send({ totalLiters });
     } catch (err) {
-        console.error('Error:', err);
         res.status(500).send({ message: err.message });
     }
  };
@@ -101,21 +115,21 @@ const getCurentMonthMeasurementMcubic = async (req, res) => {
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-        const totalMcubic = await Measurement.aggregate([
-            {
-                $match: {
-                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
-                }
-            },
-            {
-                $group: {
-                    _id: null, // Agrupar todos os documentos juntos
-                    totalMcubic: { $sum: "$valueMcubic" }
-                }
-            }
-        ]);
+        const measurements = await Measurement.find({
+            timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
 
-        res.send({ totalMcubic: totalMcubic[0]?.totalMcubic || 0 });
+        if (measurements.length < 2) {
+            return res.status(400).send({ message: "Not enough data to calculate consumption" });
+        }
+
+        // Pegando a primeira e a última medição do mês
+        const firstMeasurement = measurements[0].valueMcubic;
+        const lastMeasurement = measurements[measurements.length - 1].valueMcubic;
+
+        const totalMcubic = lastMeasurement - firstMeasurement;
+
+        res.send({ totalMcubic });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
@@ -127,21 +141,19 @@ const getCurentMonthBilling = async (req, res) => {
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-        const totalMcubicData = await Measurement.aggregate([
-            {
-                $match: {
-                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalMcubic: { $sum: "$valueMcubic" }
-                }
-            }
-        ]);
+        const measurements = await Measurement.find({
+            timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
 
-        const totalMcubic = totalMcubicData[0]?.totalMcubic || 0;
+        if (measurements.length < 2) {
+            return res.status(400).send({ message: "Not enough data to calculate consumption" });
+        }
+
+        // Pegando a primeira e a última medição do mês
+        const firstMeasurement = measurements[0].valueMcubic;
+        const lastMeasurement = measurements[measurements.length - 1].valueMcubic;
+
+        const totalMcubic = lastMeasurement - firstMeasurement;
         const billingAmount = calculateBilling(totalMcubic);
 
         res.send({ totalMcubic, billingAmount });
@@ -154,27 +166,28 @@ const getCurentMonthPrev = async (req, res) => {
     try {
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Obter todas as medições do mês até a data atual
+        const measurements = await Measurement.find({
+            timestamp: { $gte: firstDayOfMonth, $lt: now }
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
+
+        if (measurements.length < 2) {
+            return res.status(400).send({ message: "Not enough data to calculate consumption" });
+        }
+
+        // Pegando a primeira e a última medição até a data atual
+        const firstMeasurement = measurements[0].valueMcubic;
+        const lastMeasurement = measurements[measurements.length - 1].valueMcubic;
+
+        // Calculando o consumo total até agora
+        const totalMcubic = lastMeasurement - firstMeasurement;
         const currentDay = now.getDate();
-        const totalDaysOfMonth = lastDayOfMonth.getDate();
+        const totalDaysOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-        const totalMcubicData = await Measurement.aggregate([
-            {
-                $match: {
-                    timestamp: { $gte: firstDayOfMonth, $lt: now } // Apenas considerando até o dia atual
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalMcubic: { $sum: "$valueMcubic" }
-                }
-            }
-        ]);
-
-        const totalMcubic = totalMcubicData[0]?.totalMcubic || 0;
-        const averageDailyConsumption = totalMcubic / currentDay; // Média de consumo por dia
-        const projectedConsumption = averageDailyConsumption * totalDaysOfMonth; // Projeção para o mês inteiro
+        // Calculando a média diária e a projeção para o mês inteiro
+        const averageDailyConsumption = totalMcubic / currentDay;
+        const projectedConsumption = averageDailyConsumption * totalDaysOfMonth;
 
         res.send({
             averageDailyConsumption,
