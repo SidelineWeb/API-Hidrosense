@@ -56,3 +56,17 @@ export const validHydrometerId = async (req, res, next) => {
     res.status(500).send({ message: err.message });
   }
 };
+
+// Função genérica para calcular totais por período
+export const calculateTotals = async (matchStage) => {
+  return await Measurement.aggregate([
+      { $match: matchStage },
+      {
+          $group: {
+              _id: null,
+              totalLiters: { $sum: "$valueliters" },
+              totalMcubic: { $sum: "$valueMcubic" }
+          }
+      }
+  ]);
+};
