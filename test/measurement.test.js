@@ -16,7 +16,7 @@ async function seedMeasurements() {
     console.log('Coleção Measurement limpa.');
 
     const numMeasurements = 50; // Número de medidas a criar
-    let date = new Date('2023-10-20'); // Data de início
+    let date = new Date('2024-6-05'); // Data de início
     let pulses = 10, valueMcubic = 5, valueliters = 5000; // Valores iniciais
 
     for (let i = 0; i < numMeasurements; i++) {
