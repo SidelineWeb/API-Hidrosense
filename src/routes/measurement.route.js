@@ -59,5 +59,13 @@ router.get("/user-day-mcubic",authMiddleware, measurementController.getCurrentDa
 router.get("/user-day-mcubic",authMiddleware, measurementController.getCustomDayMcubicByUser); // ao passar os parametros http://api/measurements/user-day-liters?date=2023-03-15
 router.get("/user-week-mcubic",authMiddleware, measurementController.getCurrentWeekMcubicByUser);
 router.get("/user-week-mcubic",authMiddleware, measurementController.getCustomWeekMcubicByUser);
+
+// Filtros - medição por hidrômetro
+
+// Rotas para buscar o consumo por hidrômetro com base no serial number
+router.get('/hidrometer-total-month-liters/:serialNumber', measurementController.getCurrentMonthMeasurementLitersBySerial);
+router.get('/hidrometer-total-month-mcubic/:serialNumber', measurementController.getCurrentMonthMeasurementMcubicBySerial);
+router.get('/hidrometer-total-month-prev/:serialNumber', measurementController.getCurentMonthPrevBySerial);
+router.get('/hidrometer-total-month-billing/:serialNumber', measurementController.getCurentMonthBillingBySerial);
  
 export default router;

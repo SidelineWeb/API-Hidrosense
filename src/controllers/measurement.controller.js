@@ -1,5 +1,6 @@
 import { createService, findAllService} from "../services/measurement.service.js";
 import Measurement from "../models/Measurement.js";
+import Hydrometer from '../models/Hydrometer.js';
 import moment from 'moment-timezone';
 
 const calculateBilling = (totalMcubic) => {
@@ -1427,6 +1428,156 @@ const getCustomWeekMcubicByUser = async (req, res) => {
 
 // Info Charts - Hydrometer 
 
+const getCurrentMonthMeasurementLitersBySerial = async (req, res) => {
+    try {
+        const { serialNumber } = req.params; // Obtendo o serial number da requisição
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Encontrar o hidrômetro pelo serial number
+        const hydrometer = await Hydrometer.findOne({ serialNumber }).select('_id');
+        if (!hydrometer) {
+            return res.status(404).send({ message: "Hidrômetro não encontrado" });
+        }
+
+        // Consultar medições do hidrômetro no mês atual
+        const totalLiters = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: hydrometer._id,
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalLiters: { $sum: "$valueliters" }
+                }
+            }
+        ]);
+
+        res.send({ totalLiters: totalLiters[0]?.totalLiters || 0 });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const getCurrentMonthMeasurementMcubicBySerial = async (req, res) => {
+    try {
+        const { serialNumber } = req.params; // Obtendo o serial number da requisição
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Encontrar o hidrômetro pelo serial number
+        const hydrometer = await Hydrometer.findOne({ serialNumber }).select('_id');
+        if (!hydrometer) {
+            return res.status(404).send({ message: "Hidrômetro não encontrado" });
+        }
+
+        // Consultar medições do hidrômetro no mês atual
+        const totalMcubic = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: hydrometer._id,
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalMcubic: { $sum: "$valueMcubic" }
+                }
+            }
+        ]);
+
+        res.send({ totalMcubic: totalMcubic[0]?.totalMcubic || 0 });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const getCurentMonthBillingBySerial = async (req, res) => { 
+    try {
+        const serialNumber = req.params.serialNumber; // Obtém o serialNumber do hidrômetro a partir dos parâmetros da URL
+        const hydrometer = await Hydrometer.findOne({ serialNumber });
+
+        if (!hydrometer) {
+            return res.status(404).send({ message: "Hydrometer not found" });
+        }
+
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Busca as medições relacionadas ao hidrômetro
+        const measurements = await Measurement.find({
+            hydrometer: hydrometer._id, // Associar as medições ao hidrômetro
+            timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
+
+        if (measurements.length < 2) {
+            return res.status(400).send({ message: "Not enough data to calculate consumption" });
+        }
+
+        // Pegando a primeira e a última medição do mês
+        const firstMeasurement = measurements[0].valueMcubic;
+        const lastMeasurement = measurements[measurements.length - 1].valueMcubic;
+
+        const totalMcubic = lastMeasurement - firstMeasurement;
+        const billingAmount = calculateBilling(totalMcubic); // Função que você usa para calcular a cobrança
+
+        res.send({ totalMcubic, billingAmount });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const getCurentMonthPrevBySerial = async (req, res) => { 
+    try {
+        const serialNumber = req.params.serialNumber; // Obtém o serialNumber do hidrômetro a partir dos parâmetros da URL
+        const hydrometer = await Hydrometer.findOne({ serialNumber });
+
+        if (!hydrometer) {
+            return res.status(404).send({ message: "Hydrometer not found" });
+        }
+
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Obter todas as medições do mês até a data atual
+        const measurements = await Measurement.find({
+            hydrometer: hydrometer._id, // Associar as medições ao hidrômetro
+            timestamp: { $gte: firstDayOfMonth, $lt: now }
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
+
+        if (measurements.length < 2) {
+            return res.status(400).send({ message: "Not enough data to calculate consumption" });
+        }
+
+        // Pegando a primeira e a última medição até a data atual
+        const firstMeasurement = measurements[0].valueMcubic;
+        const lastMeasurement = measurements[measurements.length - 1].valueMcubic;
+
+        // Calculando o consumo total até agora
+        const totalMcubic = lastMeasurement - firstMeasurement;
+        const currentDay = now.getDate();
+        const totalDaysOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+        // Calculando a média diária e a projeção para o mês inteiro
+        const averageDailyConsumption = totalMcubic / currentDay;
+        const projectedConsumption = averageDailyConsumption * totalDaysOfMonth;
+
+        res.send({
+            averageDailyConsumption,
+            projectedConsumption
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
 // filtros - Measurement User
 
 export default { 
@@ -1447,5 +1598,7 @@ export default {
     getCustomMonthMcubicByUser, getCurrentYearMcubicByUser, getCustomYearMcubicByUser,
     getCurrentDayMcubicByUser, getCustomDayMcubicByUser, getCurrentWeekMcubicByUser,
     getCustomWeekMcubicByUser,
+
+    getCurrentMonthMeasurementLitersBySerial, getCurrentMonthMeasurementMcubicBySerial, getCurentMonthBillingBySerial, getCurentMonthPrevBySerial,
 
 };
