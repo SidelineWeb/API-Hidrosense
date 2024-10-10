@@ -1,5 +1,6 @@
 import { createService, findAllService} from "../services/measurement.service.js";
 import Measurement from "../models/Measurement.js";
+import { io } from '../../index.js';
 import moment from 'moment-timezone';
 
 const calculateBilling = (totalMcubic) => {
@@ -91,23 +92,25 @@ const getCurentMonthMeasurementLiters = async (req, res) => {
 
         const measurements = await Measurement.find({
             timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
-        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
+        }).sort({ timestamp: 1 });
 
         if (measurements.length < 2) {
             return res.status(400).send({ message: "Not enough data to calculate consumption" });
         }
 
-        // Pegando a primeira e a última medição do mês
+        // Calcula o consumo total
         const firstMeasurement = measurements[0].valueliters;
         const lastMeasurement = measurements[measurements.length - 1].valueliters;
-
         const totalLiters = lastMeasurement - firstMeasurement;
+
+        // Emite o evento para todos os clientes conectados
+        io.emit('updateConsumption', { totalLiters });
 
         res.send({ totalLiters });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
- };
+};
 
 const getCurentMonthMeasurementMcubic = async (req, res) => {
     try {
