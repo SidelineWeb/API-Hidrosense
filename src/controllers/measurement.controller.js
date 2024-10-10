@@ -1,6 +1,5 @@
 import { createService, findAllService} from "../services/measurement.service.js";
 import Measurement from "../models/Measurement.js";
-import { io } from '../../index.js';
 import moment from 'moment-timezone';
 
 const calculateBilling = (totalMcubic) => {
@@ -92,25 +91,23 @@ const getCurentMonthMeasurementLiters = async (req, res) => {
 
         const measurements = await Measurement.find({
             timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
-        }).sort({ timestamp: 1 });
+        }).sort({ timestamp: 1 }); // Ordenando do mais antigo para o mais recente
 
         if (measurements.length < 2) {
             return res.status(400).send({ message: "Not enough data to calculate consumption" });
         }
 
-        // Calcula o consumo total
+        // Pegando a primeira e a última medição do mês
         const firstMeasurement = measurements[0].valueliters;
         const lastMeasurement = measurements[measurements.length - 1].valueliters;
-        const totalLiters = lastMeasurement - firstMeasurement;
 
-        // Emite o evento para todos os clientes conectados
-        io.emit('updateConsumption', { totalLiters });
+        const totalLiters = lastMeasurement - firstMeasurement;
 
         res.send({ totalLiters });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
-};
+ };
 
 const getCurentMonthMeasurementMcubic = async (req, res) => {
     try {
@@ -740,7 +737,7 @@ const getCustomWeekMcubic = async (req, res) => {
     }
 };
 
-// Info Charts - User por Hydrometer
+// Info Charts - User 
 
 const getCurentMonthMeasurementLitersByUser = async (req, res) => {
     try {
@@ -810,7 +807,7 @@ const getCurentMonthBillingByUser = async (req, res) => {
 
 const getCurentMonthPrevByUser = async (req, res) => { };
 
-// filtros - Medição User por Hydrometer
+// filtros - Medição User 
 
 const getCurrentMonthLitersByUser = async (req, res) => { 
     try {
@@ -1427,6 +1424,10 @@ const getCustomWeekMcubicByUser = async (req, res) => {
         res.status(500).send({ message: err.message });
     }
 };
+
+// Info Charts - Hydrometer 
+
+// filtros - Measurement User
 
 export default { 
     create, findAll, findByHydrometer,
