@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import Measurement from "../src/models/Measurement.js";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: '../.env' });
+
+console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("Conexão com MongoDB estabelecida."))
@@ -16,7 +18,7 @@ async function seedMeasurements() {
     console.log('Coleção Measurement limpa.');
 
     const numMeasurements = 50; // Número de medidas a criar
-    let date = new Date('2024-6-05'); // Data de início
+    let date = new Date('2024-8-25'); // Data de início
     let pulses = 10, valueMcubic = 5, valueliters = 5000; // Valores iniciais
 
     for (let i = 0; i < numMeasurements; i++) {
