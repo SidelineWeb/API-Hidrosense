@@ -60,6 +60,6 @@ io.on('connection', (socket) => {
   });
 });
 
-app.listen(port, () => console.log(`Servidor rodando na porta ${port}`));
+server.listen(port, () => console.log(`Servidor rodando na porta ${port}`));
 
 export { io }; // Exporta o `io` para ser usado nos controllers
