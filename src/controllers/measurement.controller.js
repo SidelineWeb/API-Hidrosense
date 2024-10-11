@@ -1578,6 +1578,66 @@ const getCurentMonthPrevBySerial = async (req, res) => {
     }
 };
 
+const getCurrentMonthMeasurementMcubicByHydrometer = async (req, res) => {
+    try {
+        const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Busca o total de metros cúbicos para o hidrômetro específico dentro do mês atual
+        const totalMcubic = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: mongoose.Types.ObjectId(hydrometerId),
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: null, // Agrupar todos os documentos juntos
+                    totalMcubic: { $sum: "$valueMcubic" }
+                }
+            }
+        ]);
+
+        res.send({ totalMcubic: totalMcubic[0]?.totalMcubic || 0 });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const getCurrentMonthMeasurementLitersByHydrometer = async (req, res) => {
+    try {
+        const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Busca o total de litros para o hidrômetro específico dentro do mês atual
+        const totalLiters = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: mongoose.Types.ObjectId(hydrometerId),
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: null, // Agrupar todos os documentos juntos
+                    totalLiters: { $sum: "$valueliters" }
+                }
+            }
+        ]);
+
+        res.send({ totalLiters: totalLiters[0]?.totalLiters || 0 });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+
+
 // filtros - Measurement User
 
 export default { 
@@ -1600,5 +1660,6 @@ export default {
     getCustomWeekMcubicByUser,
 
     getCurrentMonthMeasurementLitersBySerial, getCurrentMonthMeasurementMcubicBySerial, getCurentMonthBillingBySerial, getCurentMonthPrevBySerial,
+    getCurrentMonthMeasurementMcubicByHydrometer, getCurrentMonthMeasurementLitersByHydrometer
 
 };
