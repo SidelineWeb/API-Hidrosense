@@ -1588,11 +1588,14 @@ const getCurrentMonthMeasurementLitersByHydrometer = async (req, res) => {
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+        // Converte o hydrometerId para ObjectId
+        const objectIdHydrometer = new mongoose.Types.ObjectId(hydrometerId);
+
         // Busca o total de litros para o hidrômetro específico dentro do mês atual
         const totalLiters = await Measurement.aggregate([
             {
                 $match: {
-                    hydrometer: hydrometerId, // Passa a string diretamente
+                    hydrometer: objectIdHydrometer, // Passa o ObjectId aqui
                     timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
                 }
             },
@@ -1618,11 +1621,14 @@ const getCurrentMonthMeasurementMcubicByHydrometer = async (req, res) => {
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+        // Converte o hydrometerId para ObjectId
+        const objectIdHydrometer = new mongoose.Types.ObjectId(hydrometerId);
+
         // Busca o total de metros cúbicos para o hidrômetro específico dentro do mês atual
         const totalMcubic = await Measurement.aggregate([
             {
                 $match: {
-                    hydrometer: hydrometerId, // Passa a string diretamente
+                    hydrometer: objectIdHydrometer, // Passa o ObjectId aqui
                     timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
                 }
             },
