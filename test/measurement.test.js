@@ -15,13 +15,13 @@ async function seedMeasurements() {
     await Measurement.deleteMany({});
     console.log('Coleção Measurement limpa.');
 
-    const numMeasurements = 50; // Número de medidas a criar
-    let date = new Date('2024-10-10'); // Data de início
+    const numMeasurements = 10; // Número de medidas a criar
+    let date = new Date('2024-10-1'); // Data de início
     let pulses = 10, valueMcubic = 5, valueliters = 5000; // Valores iniciais
 
     for (let i = 0; i < numMeasurements; i++) {
       const data = { 
-        hydrometer: '67038ab1133085321d241f87', 
+        hydrometer: '6548170aeb78f9796f2715f0', 
         pulses: pulses, 
         valueMcubic: valueMcubic, 
         valueliters: valueliters, 

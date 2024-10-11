@@ -1,7 +1,9 @@
-import { createService, findAllService} from "../services/measurement.service.js";
+import { createService, findAllService, findByHydrometerService} from "../services/measurement.service.js";
 import Measurement from "../models/Measurement.js";
 import Hydrometer from '../models/Hydrometer.js';
 import moment from 'moment-timezone';
+import mongoose from 'mongoose';
+
 
 const calculateBilling = (totalMcubic) => {
     const tarifas = [
@@ -1578,35 +1580,7 @@ const getCurentMonthPrevBySerial = async (req, res) => {
     }
 };
 
-const getCurrentMonthMeasurementMcubicByHydrometer = async (req, res) => {
-    try {
-        const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-        // Busca o total de metros cúbicos para o hidrômetro específico dentro do mês atual
-        const totalMcubic = await Measurement.aggregate([
-            {
-                $match: {
-                    hydrometer: mongoose.Types.ObjectId(hydrometerId),
-                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
-                }
-            },
-            {
-                $group: {
-                    _id: null, // Agrupar todos os documentos juntos
-                    totalMcubic: { $sum: "$valueMcubic" }
-                }
-            }
-        ]);
-
-        res.send({ totalMcubic: totalMcubic[0]?.totalMcubic || 0 });
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
-};
-
+// Controlador para obter o total de litros do hidrômetro
 const getCurrentMonthMeasurementLitersByHydrometer = async (req, res) => {
     try {
         const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
@@ -1618,7 +1592,7 @@ const getCurrentMonthMeasurementLitersByHydrometer = async (req, res) => {
         const totalLiters = await Measurement.aggregate([
             {
                 $match: {
-                    hydrometer: mongoose.Types.ObjectId(hydrometerId),
+                    hydrometer: hydrometerId, // Passa a string diretamente
                     timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
                 }
             },
@@ -1631,6 +1605,36 @@ const getCurrentMonthMeasurementLitersByHydrometer = async (req, res) => {
         ]);
 
         res.send({ totalLiters: totalLiters[0]?.totalLiters || 0 });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+// Controlador para obter o total de metros cúbicos do hidrômetro
+const getCurrentMonthMeasurementMcubicByHydrometer = async (req, res) => {
+    try {
+        const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Busca o total de metros cúbicos para o hidrômetro específico dentro do mês atual
+        const totalMcubic = await Measurement.aggregate([
+            {
+                $match: {
+                    hydrometer: hydrometerId, // Passa a string diretamente
+                    timestamp: { $gte: firstDayOfMonth, $lt: lastDayOfMonth }
+                }
+            },
+            {
+                $group: {
+                    _id: null, // Agrupar todos os documentos juntos
+                    totalMcubic: { $sum: "$valueMcubic" }
+                }
+            }
+        ]);
+
+        res.send({ totalMcubic: totalMcubic[0]?.totalMcubic || 0 });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
