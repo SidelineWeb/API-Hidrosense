@@ -11,11 +11,8 @@ mongoose.connect(process.env.MONGODB_URI)
 
 async function seedMeasurements() {
   try {
-    //console.log('Iniciando limpeza da coleção Measurement...');
-    await Measurement.deleteMany({});
-    console.log('Coleção Measurement limpa.');
 
-    const numMeasurements = 10; // Número de medidas a criar
+    const numMeasurements = 14; // Número de medidas a criar
     let date = new Date('2024-10-1'); // Data de início
     let pulses = 10, valueMcubic = 5, valueliters = 5000; // Valores iniciais
 
