@@ -266,10 +266,10 @@ const getCurrentLitersPerDay = async (req, res) => {
     }
 };
 
-const getCurrentLitersPerMonth = async (req, res) => { 
+const getCurrentLitersPerMonth = async (req, res) => {
     try {
-
         const currentYear = new Date().getFullYear(); // Obtendo o ano atual
+        const currentMonth = new Date().getMonth() + 1; // Mês atual (1-12)
 
         const firstDayOfYear = new Date(currentYear, 0, 1);
         const lastDayOfYear = new Date(currentYear, 11, 31);
@@ -291,7 +291,27 @@ const getCurrentLitersPerMonth = async (req, res) => {
             }
         ]);
 
-        res.send({ totalLitersPerMonth });
+        // Array com nomes dos meses
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        // Criando uma lista com os meses até o mês atual, inicializando com zero
+        const monthlyConsumption = Array.from({ length: currentMonth }, (_, index) => ({
+            month: index + 1,
+            monthName: monthNames[index],
+            totalLiters: 0
+        }));
+
+        // Preenchendo os valores de consumo para os meses com medições
+        totalLitersPerMonth.forEach(data => {
+            if (data._id <= currentMonth) {
+                monthlyConsumption[data._id - 1].totalLiters = data.totalLiters;
+            }
+        });
+
+        res.send({ monthlyConsumption });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
