@@ -12,13 +12,13 @@ mongoose.connect(process.env.MONGODB_URI)
 async function seedMeasurements() {
   try {
 
-    const numMeasurements = 14; // Número de medidas a criar
-    let date = new Date('2024-10-1'); // Data de início
-    let pulses = 10, valueMcubic = 5, valueliters = 5000; // Valores iniciais
+    const numMeasurements = 21; // Número de medidas a criar
+    let date = new Date('2024-9-22'); // Data de início
+    let pulses = 1, valueMcubic = 0.001, valueliters = 1; // Valores iniciais
 
     for (let i = 0; i < numMeasurements; i++) {
       const data = { 
-        hydrometer: '6548170aeb78f9796f2715f0', 
+        hydrometer: '67038ab1133085321d241f87', 
         pulses: pulses, 
         valueMcubic: valueMcubic, 
         valueliters: valueliters, 
@@ -31,9 +31,9 @@ async function seedMeasurements() {
       console.log('Dado inserido:', data);
 
       // Incrementando valores e data
-      pulses += 1;
-      valueMcubic += 0.5;
-      valueliters += 100;
+      pulses = 1;
+      valueMcubic = 0.001;
+      valueliters = 1;
       date.setDate(date.getDate() + 1); // Avança um dia
     }
 

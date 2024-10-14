@@ -17,23 +17,23 @@ router.get("/total-month-bill", measurementController.getCurentMonthBilling);
 router.get("/total-month-prev", measurementController.getCurentMonthPrev);
 
 // filtros - Medição Geral
-router.get("/month-liters", measurementController.getCurrentMonthLiters);
-router.get("/month-liters", measurementController.getCustomMonthLiters);
-router.get("/year-liters", measurementController.getCurrentYearLiters);
-router.get("/year-liters", measurementController.getCustomYearLiters);
-router.get("/week-liters", measurementController.getCurrentWeekLiters);
-router.get("/week-liters", measurementController.getCustomWeekLiters);
-router.get("/day-liters", measurementController.geCurrentDayLiters);
-router.get("/day-liters", measurementController.geCustomDayLiters);
+router.get("/monthday-liters", measurementController.getCurrentLitersPerDay);
+router.get("/custom-monthday-liters", measurementController.getCustomLitersPerDay);
+router.get("/month-liters", measurementController.getCurrentLitersPerMonth);
+router.get("/custom-month-liters", measurementController.getCustomLitersPerMonth);
+router.get("/weekdays-liters", measurementController.getCurrentLitersPerWeekDay);
+router.get("/custom-weekdays-liters", measurementController.getCustomLitersPerWeekDay);
+router.get("/hour-liters", measurementController.geCurrentLitersPerHour);
+router.get("/custom-hour-liters", measurementController.geCustomLitersPerHour);
 
-router.get("/month-mcubic", measurementController.getCurrentMonthMcubic);
-router.get("/month-mcubic", measurementController.getCustomMonthMcubic);
-router.get("/year-mcubic", measurementController.getCurrentYearMcubic);
-router.get("/year-mcubic", measurementController.getCustomYearMcubic);
-router.get("/week-mcubic", measurementController.getCurrentWeekMcubic);
-router.get("/week-mcubic", measurementController.getCustomWeekMcubic);
-router.get("/day-mcubic", measurementController.getCustomDayMcubic);
-router.get("/day-mcubic", measurementController.geCustomDayLiters);
+router.get("/monthday-mcubic", measurementController.getCurrentMcubicPerDay);
+router.get("/custom-monthday-mcubic", measurementController.getCustomMcubicPerDay);
+router.get("/month-mcubic", measurementController.getCurrentMcubicPerMonth);
+router.get("/custom-month-mcubic", measurementController.getCustomMcubicPerMonth);
+router.get("/weekday-mcubic", measurementController.getCurrentMcubicPerWeekday);
+router.get("/custom-weekday-mcubic", measurementController.getCustomMcubicPerWeekday);
+router.get("/hour-mcubic", measurementController.getCurrentMcubicPerHour);
+router.get("/custom-hour-mcubic", measurementController.getCustomMcubicPerHour);
 
 // Info Charts - User por Hydrometer
 router.get("/user-total-month-liters", measurementController.getCurentMonthMeasurementLitersByUser);

@@ -84,6 +84,8 @@ const findByHydrometer = async (req, res) => {
     }
 };
 
+// Medição Geral -----------------------------------------------------------------
+
 // Info Charts 
 
 const getCurentMonthMeasurementLiters = async (req, res) => {
@@ -194,10 +196,9 @@ const getCurentMonthPrev = async (req, res) => {
     }
 };
 
-
 // filtros - Medição Geral
 
-const getCurrentMonthLiters = async (req, res) => {
+const getCurrentLitersPerDay = async (req, res) => {
     try {
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -226,7 +227,7 @@ const getCurrentMonthLiters = async (req, res) => {
     }
  };
 
- const getCustomMonthLiters = async (req, res) => { 
+ const getCustomLitersPerDay = async (req, res) => { 
     try {
         const { year, month } = req.query; // Obtendo ano e mês dos parâmetros da requisição
 
@@ -265,7 +266,7 @@ const getCurrentMonthLiters = async (req, res) => {
     }
 };
 
-const getCurrentYearLiters = async (req, res) => { 
+const getCurrentLitersPerMonth = async (req, res) => { 
     try {
 
         const currentYear = new Date().getFullYear(); // Obtendo o ano atual
@@ -296,7 +297,7 @@ const getCurrentYearLiters = async (req, res) => {
     }
 };
 
-const getCustomYearLiters = async (req, res) => { 
+const getCustomLitersPerMonth = async (req, res) => { 
     try {
         const { year } = req.query; // Recebendo o ano dos parâmetros da requisição
 
@@ -331,7 +332,7 @@ const getCustomYearLiters = async (req, res) => {
     }
 };
 
-const geCurrentDayLiters = async (req, res) => { 
+const geCurrentLitersPerHour = async (req, res) => { 
     try {
         // Obtendo o dia atual
         const selectedDate = new Date();
@@ -362,7 +363,7 @@ const geCurrentDayLiters = async (req, res) => {
     }
 };
 
-const geCustomDayLiters = async (req, res) => { 
+const geCustomLitersPerHour = async (req, res) => { 
     try {
         const { date } = req.query; // Recebendo a data dos parâmetros da requisição
 
@@ -398,7 +399,7 @@ const geCustomDayLiters = async (req, res) => {
     }    
 };
 
-const getCurrentWeekLiters = async (req, res) => { 
+const getCurrentLitersPerWeekDay = async (req, res) => { 
     try {
         // Calculando as datas de início e fim da semana atual
         const today = new Date();
@@ -406,7 +407,7 @@ const getCurrentWeekLiters = async (req, res) => {
         const lastDayOfWeek = new Date(firstDayOfWeek);
         lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
 
-        const totalMcubicPerDay = await Measurement.aggregate([
+        const totalLitersPerDay = await Measurement.aggregate([
             {
                 $match: {
                     timestamp: { $gte: firstDayOfWeek, $lte: lastDayOfWeek }
@@ -423,13 +424,13 @@ const getCurrentWeekLiters = async (req, res) => {
             }
         ]);
 
-        res.send({ totalMcubicPerDay });
+        res.send({ totalLitersPerDay });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
 };
 
-const getCustomWeekLiters = async (req, res) => { 
+const getCustomLitersPerWeekDay = async (req, res) => { 
     try {
         const { date } = req.query; // Recebendo uma data da semana dos parâmetros da requisição
 
@@ -470,7 +471,7 @@ const getCustomWeekLiters = async (req, res) => {
     }
 };
 
-const getCurrentMonthMcubic = async (req, res) => { 
+const getCurrentMcubicPerDay = async (req, res) => { 
     try {
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -496,7 +497,7 @@ const getCurrentMonthMcubic = async (req, res) => {
     }
 };
 
-const getCustomMonthMcubic = async (req, res) => { 
+const getCustomMcubicPerDay = async (req, res) => { 
     try {
         const { year, month } = req.query; // Obtendo ano e mês dos parâmetros da requisição
 
@@ -531,7 +532,7 @@ const getCustomMonthMcubic = async (req, res) => {
     }
 };
 
-const getCurrentYearMcubic = async (req, res) => { 
+const getCurrentMcubicPerMonth = async (req, res) => { 
     try {
         const currentYear = new Date().getFullYear(); // Obtendo o ano atual
         const firstDayOfYear = new Date(currentYear, 0, 1);
@@ -560,7 +561,7 @@ const getCurrentYearMcubic = async (req, res) => {
     }
 };
 
-const getCustomYearMcubic = async (req, res) => { 
+const getCustomMcubicPerMonth = async (req, res) => { 
     try {
         const { year } = req.query; // Recebendo o ano dos parâmetros da requisição
 
@@ -595,7 +596,7 @@ const getCustomYearMcubic = async (req, res) => {
     }
 };
 
-const getCurrentDayMcubic = async (req, res) => { 
+const getCurrentMcubicPerHour = async (req, res) => { 
     try {
         // Obtendo o dia atual
         const selectedDate = new Date();
@@ -626,7 +627,7 @@ const getCurrentDayMcubic = async (req, res) => {
     }
 };
 
-const getCustomDayMcubic = async (req, res) => { 
+const getCustomMcubicPerHour = async (req, res) => { 
     try {
         const { date } = req.query; // Recebendo a data dos parâmetros da requisição
 
@@ -662,7 +663,7 @@ const getCustomDayMcubic = async (req, res) => {
     }
 };
 
-const getCurrentWeekMcubic = async (req, res) => { 
+const getCurrentMcubicPerWeekday = async (req, res) => { 
     try {
         // Calculando as datas de início e fim da semana atual
         const today = new Date();
@@ -693,7 +694,7 @@ const getCurrentWeekMcubic = async (req, res) => {
     }
 };
 
-const getCustomWeekMcubic = async (req, res) => { 
+const getCustomMcubicPerWeekday = async (req, res) => { 
     try {
         const { date } = req.query; // Recebendo uma data da semana dos parâmetros da requisição
 
@@ -1649,10 +1650,10 @@ export default {
 
     getCurentMonthMeasurementLiters, getCurentMonthMeasurementMcubic, getCurentMonthBilling, getCurentMonthPrev,
 
-    getCurrentMonthLiters, getCustomMonthLiters, getCurrentYearLiters, getCustomYearLiters,
-    geCurrentDayLiters, geCustomDayLiters, getCurrentWeekLiters, getCustomWeekLiters,
-    getCurrentMonthMcubic, getCustomMonthMcubic, getCurrentYearMcubic, getCustomYearMcubic,
-    getCurrentDayMcubic, getCustomDayMcubic, getCurrentWeekMcubic, getCustomWeekMcubic,
+    getCurrentLitersPerDay, getCustomLitersPerDay, getCurrentLitersPerMonth, getCustomLitersPerMonth,
+    geCurrentLitersPerHour, geCustomLitersPerHour, getCurrentLitersPerWeekDay, getCustomLitersPerWeekDay,
+    getCurrentMcubicPerDay, getCustomMcubicPerDay, getCurrentMcubicPerMonth, getCustomMcubicPerMonth,
+    getCurrentMcubicPerHour, getCustomMcubicPerHour, getCurrentMcubicPerWeekday, getCustomMcubicPerWeekday,
 
     getCurentMonthMeasurementLitersByUser, getCurentMonthMeasurementMcubicByUser, getCurentMonthBillingByUser, getCurentMonthPrevByUser,
 
