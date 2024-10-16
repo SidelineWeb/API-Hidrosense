@@ -421,11 +421,9 @@ const geCustomLitersPerHour = async (req, res) => {
 
 const getCurrentLitersPerWeekDay = async (req, res) => { 
     try {
-        // Calculando as datas de início e fim da semana atual
-        const today = new Date();
-        const firstDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-        const lastDayOfWeek = new Date(firstDayOfWeek);
-        lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+        const currentDate = new Date();
+        const firstDayOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1)); // Segunda-feira
+        const lastDayOfWeek = new Date(currentDate.setDate(firstDayOfWeek.getDate() + 6)); // Domingo
 
         const totalLitersPerDay = await Measurement.aggregate([
             {
@@ -440,11 +438,29 @@ const getCurrentLitersPerWeekDay = async (req, res) => {
                 }
             },
             {
-                $sort: { "_id": 1 } // Ordenando pelos dias da semana
+                $sort: { "_id": 1 } // Ordenando por dia da semana (1 = domingo, 2 = segunda, etc.)
             }
         ]);
 
-        res.send({ totalLitersPerDay });
+        // Array com nomes dos dias da semana, começando por domingo
+        const dayNames = [
+            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+        ];
+
+        // Inicializando os valores de consumo para os 7 dias da semana com zero
+        const weeklyConsumption = Array.from({ length: 7 }, (_, index) => ({
+            day: index + 1,
+            dayName: dayNames[index],
+            totalLiters: 0
+        }));
+
+        // Preenchendo os valores de consumo para os dias com medições
+        totalLitersPerDay.forEach(data => {
+            const dayIndex = data._id - 1; // O índice começa em 0 para a array weeklyConsumption
+            weeklyConsumption[dayIndex].totalLiters = data.totalLiters;
+        });
+
+        res.send({ weeklyConsumption });
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
