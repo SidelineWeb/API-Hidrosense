@@ -444,7 +444,7 @@ const getCurrentLitersPerWeekDay = async (req, res) => {
 
         // Array com nomes dos dias da semana, começando por domingo
         const dayNames = [
-            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+            "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"
         ];
 
         // Inicializando os valores de consumo para os 7 dias da semana com zero
