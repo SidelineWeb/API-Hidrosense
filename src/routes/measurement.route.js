@@ -63,6 +63,9 @@ router.get("/user-week-mcubic",authMiddleware, measurementController.getCustomWe
 // Filtros - medição por hidrômetro
 router.get('/total-month-liters-by-hidrometer/:hydrometerId', measurementController.getCurrentMonthMeasurementLitersByHydrometer);
 router.get('/total-month-mcubic-by-hidrometer/:hydrometerId', measurementController.getCurrentMonthMeasurementMcubicByHydrometer);
+router.get('/prev-by-hidrometer/:hydrometerId', measurementController.getCurrentMonthProjectedConsumptionByHydrometer);
+router.get('/billing-by-hidrometer/:hydrometerId', measurementController.getCurrentMonthBillingByHydrometer);
+
 // Info Charts - Hydrometer ID
 
 // Rotas para buscar o consumo por hidrômetro com base no serial number

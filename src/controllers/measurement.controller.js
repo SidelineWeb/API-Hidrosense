@@ -1677,6 +1677,75 @@ const getCurrentMonthMeasurementMcubicByHydrometer = async (req, res) => {
     }
 };
 
+const getCurrentMonthProjectedConsumptionByHydrometer = async (req, res) => {
+    try {
+        const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Converte o hydrometerId para ObjectId
+        const objectIdHydrometer = new mongoose.Types.ObjectId(hydrometerId);
+
+        // Obter todas as medições do hidrômetro para o mês até a data atual
+        const measurements = await Measurement.find({
+            hydrometer: objectIdHydrometer,
+            timestamp: { $gte: firstDayOfMonth, $lt: now }
+        });
+
+        if (measurements.length === 0) {
+            return res.status(400).send({ message: "No data available for this month" });
+        }
+
+        // Somar os valores de valueMcubic de todas as medições até a data atual
+        const totalMcubic = measurements.reduce((sum, measurement) => sum + measurement.valueMcubic, 0);
+
+        const currentDay = now.getDate();
+        const totalDaysOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+        // Calcular a média diária e projetar o consumo para o mês inteiro
+        const averageDailyConsumption = totalMcubic / currentDay;
+        const projectedConsumption = averageDailyConsumption * totalDaysOfMonth;
+
+        res.send({
+            averageDailyConsumption,
+            projectedConsumption
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const getCurrentMonthBillingByHydrometer = async (req, res) => {
+    try {
+        const hydrometerId = req.params.hydrometerId; // Obtém o ID do hidrômetro da rota
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Converte o hydrometerId para ObjectId
+        const objectIdHydrometer = new mongoose.Types.ObjectId(hydrometerId);
+
+        // Buscar todas as medições do hidrômetro no mês atual
+        const measurements = await Measurement.find({
+            hydrometer: objectIdHydrometer,
+            timestamp: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+        });
+
+        if (measurements.length === 0) {
+            return res.status(400).send({ message: "No data available for this month" });
+        }
+
+        // Somar os valores de valueMcubic de todas as medições
+        const totalMcubic = measurements.reduce((sum, measurement) => sum + measurement.valueMcubic, 0);
+
+        // Calcular o valor da cobrança com base no consumo total em metros cúbicos
+        const billingAmount = calculateBilling(totalMcubic);
+
+        res.send({ totalMcubic, billingAmount });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
 
 
 // filtros - Measurement User
@@ -1701,6 +1770,7 @@ export default {
     getCustomWeekMcubicByUser,
 
     getCurrentMonthMeasurementLitersBySerial, getCurrentMonthMeasurementMcubicBySerial, getCurentMonthBillingBySerial, getCurentMonthPrevBySerial,
-    getCurrentMonthMeasurementMcubicByHydrometer, getCurrentMonthMeasurementLitersByHydrometer
+
+    getCurrentMonthMeasurementMcubicByHydrometer, getCurrentMonthMeasurementLitersByHydrometer, getCurrentMonthProjectedConsumptionByHydrometer, getCurrentMonthBillingByHydrometer
 
 };
