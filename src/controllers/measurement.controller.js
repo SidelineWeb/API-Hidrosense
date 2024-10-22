@@ -293,8 +293,8 @@ const getCurrentLitersPerMonth = async (req, res) => {
 
         // Array com nomes dos meses
         const monthNames = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
         ];
 
         // Criando uma lista com os meses até o mês atual, inicializando com zero
